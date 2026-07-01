@@ -1,0 +1,12 @@
+# Ignore the Python Virtual Environment
+venv/
+.venv/
+env/
+
+# Ignore Django's local database and cache
+db.sqlite3
+*.pyc
+__pycache__/
+
+# Ignore VS Code configuration layers
+.vscode/

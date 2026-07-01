@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    {%load bootstrap5%} {%bootstrap_css%} {%bootstrap_javascript%}
+  </head>
+  <body>
+    <h1>Welcome to Create Question Tabs</h1>
+    <a href="/quiz/" class="btn btn-info">Home</a>
+
+    <div class="container mt-4 bg-light">
+      <form method="post">
+        {% csrf_token %} {{form}}
+
+        <div class="py-2">
+          <button type="button" id="add-btn" class="btn btn-secondary">
+            Add Question
+          </button>
+        </div>
+
+        <div id="questions-container" class="p-2 bg-info">
+          <div class="row-2 q-field mb-2">
+            <div
+              class="p-2 bg-info d-flex justify-content-between align-items-center border-p3"
+            >
+              <input
+                type="text"
+                name="question_text"
+                id="question_text_input"
+                placeholder="Enter Question"
+                style="width: 50%"
+              />
+
+              <button type="button" class="btn btn-warning">Remove</button>
+            </div>
+
+            <div id="choices-container" class="p-2 bg-warning">
+              <div class="c-field mb-2">
+                <button type="button" id="add-choice-btn">Add Choice</button>
+                <div>
+                  <input type="text" name="choices_text" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="py-2">
+          <input type="submit" value="Submit" class="btn btn-secondary" />
+        </div>
+      </form>
+    </div>
+  </body>
+
+  <script>
+    const addBtn = document.getElementById("add-btn");
+    const container = document.getElementById("questions-container");
+
+    addBtn.addEventListener("click", function () {
+      const orgfield = container.querySelector(".q-field").cloneNode(true);
+      const clonedfield = orgfield.cloneNode(true);
+
+      const input = clonedfield.querySelector("input");
+      if (input) {
+        input.value = "";
+      }
+
+      container.appendChild(orgfield);
+    });
+
+    const addChoiceBtn = document.getElementById("add-choice-btn");
+    const choice_container = document.getElementById("choices-container");
+
+    addChoiceBtn.addEventListener("click", function () {
+      const chorgfield = choice_container.querySelector(".c-field");
+      cloned_cfield = chorgfield.cloneNode(true);
+
+      const cinput = cloned_cfield.querySelector("input");
+
+      if (cinput) {
+        cinput.value = "";
+      }
+
+      choice_container.appendChild(cloned_cfield);
+    });
+  </script>
+</html>
