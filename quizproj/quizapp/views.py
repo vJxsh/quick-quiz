@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.utils import timezone
@@ -18,6 +18,15 @@ class IndexView(generic.ListView):
     def get_queryset(self):
         return QuizInstance.objects.order_by('-pub_date')
     
+def delete_quiz_instance(request, quiz_instance_id):
+    
+    quiz_instance =  get_object_or_404(QuizInstance, pk = quiz_instance_id)
+    if request.method == 'POST':
+        quiz_instance.delete()
+        
+        return HttpResponse(loader.get_template('deletemsg.html').render())
+    
+    return redirect('quiz:index')
 
 def create_quiz(request):
     code = None
@@ -39,7 +48,14 @@ def create_quiz(request):
                 pub_date = timezone.now(),
                 latest_updated_date = timezone.now()
             )
+            
+            new_questions_list = request.POST.getlist('question_text')
+            
+            new_choices_list = request.POST.getlist('question_choices')
 
+            print("list : ", new_questions_list)
+            print('choices list : ', new_choices_list)
+            
             print('new quiz title : ', new_quiz_instance.quiz_title)
             print('new creator name : ', new_quiz_instance.creator_name)
             print('new quiz date pub : ', new_quiz_instance.pub_date)

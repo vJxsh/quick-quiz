@@ -3,52 +3,109 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    {%load bootstrap5%} {%bootstrap_css%} {%bootstrap_javascript%}
+    <title>Create Quiz</title>
+    {% load bootstrap5 %} {% bootstrap_css %} {% bootstrap_javascript %}
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
   </head>
-  <body>
-    <h1>Welcome to Create Question Tabs</h1>
-    <a href="/quiz/" class="btn btn-info">Home</a>
+  <body class="bg-light">
+    <div class="navbar navbar-dark bg-dark shadow-sm mb-4">
+      <div class="container d-flex justify-content-between">
+        <span class="navbar-brand mb-0 h1">Make Quiz Page</span>
+        <a href="/quiz/" class="btn btn-outline-info btn-sm"
+          ><i class="bi bi-house-door"></i> Home</a
+        >
+      </div>
+    </div>
 
-    <div class="container mt-4 bg-light">
+    <div class="container" style="max-width: 800px">
       <form method="post">
-        {% csrf_token %} {{form}}
+        {% csrf_token %}
 
-        <div class="py-2">
-          <button type="button" id="add-btn" class="btn btn-secondary">
-            Add Question
-          </button>
-        </div>
+        <div class="p-3 mb-2 py-4 bg-info rounded-2">{{form}}</div>
 
-        <div id="questions-container" class="p-2 bg-info">
-          <div class="row-2 q-field mb-2">
+        <div id="questions-container" class="mb-4">
+          <div class="card q-field shadow-sm mb-4 border-0">
             <div
-              class="p-2 bg-info d-flex justify-content-between align-items-center border-p3"
+              class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3"
             >
-              <input
-                type="text"
-                name="question_text"
-                id="question_text_input"
-                placeholder="Enter Question"
-                style="width: 50%"
-              />
-
-              <button type="button" class="btn btn-warning">Remove</button>
+              <h5 class="mb-0 q-number-title">Question 1</h5>
+              <button
+                type="button"
+                class="btn btn-sm btn-danger remove-q-btn d-none"
+              >
+                <i class="bi bi-trash"></i> Remove Question
+              </button>
             </div>
 
-            <div id="choices-container" class="p-2 bg-warning">
-              <div class="c-field mb-2">
-                <button type="button" id="add-choice-btn">Add Choice</button>
-                <div>
-                  <input type="text" name="choices_text" />
+            <div class="card-body bg-white">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Question Text</label>
+                <input
+                  type="text"
+                  name="question_text"
+                  placeholder="e.g., What is the capital of France?"
+                  class="form-control form-control-lg"
+                  required
+                />
+              </div>
+
+              <div class="choices-container p-3 bg-light rounded border">
+                <div
+                  class="d-flex justify-content-between align-items-center mb-3"
+                >
+                  <h6 class="mb-0 text-secondary fw-bold">
+                    <i class="bi bi-list-check"></i> Answer Choices
+                  </h6>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-success add-choice-btn"
+                  >
+                    <i class="bi bi-plus-circle"></i> Add Choice
+                  </button>
+                </div>
+
+                <div class="c-field input-group mb-2 shadow-sm">
+                  <span class="input-group-text bg-white"
+                    ><i class="bi bi-circle"></i
+                  ></span>
+                  <input
+                    type="text"
+                    name="question_choices"
+                    class="form-control"
+                    placeholder="Enter choice option"
+                    required
+                  />
+                  <button
+                    type="button"
+                    class="btn btn-outline-danger remove-c-btn"
+                  >
+                    <i class="bi bi-x-lg"></i>
+                  </button>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="py-2">
-          <input type="submit" value="Submit" class="btn btn-secondary" />
+        <div
+          class="d-flex justify-content-between align-items-center border-top pt-3 pb-5"
+        >
+          <button
+            type="button"
+            id="add-btn"
+            class="btn btn-secondary px-4 py-2 fw-bold"
+          >
+            <i class="bi bi-plus-square"></i> Add Another Question
+          </button>
+          <button
+            type="submit"
+            class="btn btn-success px-5 py-2 fw-bold shadow-sm"
+          >
+            Save Quiz <i class="bi bi-check-all"></i>
+          </button>
         </div>
       </form>
     </div>
@@ -58,32 +115,70 @@
     const addBtn = document.getElementById("add-btn");
     const container = document.getElementById("questions-container");
 
-    addBtn.addEventListener("click", function () {
-      const orgfield = container.querySelector(".q-field").cloneNode(true);
-      const clonedfield = orgfield.cloneNode(true);
+    const cleanQuestionTemplate = container
+      .querySelector(".q-field")
+      .cloneNode(true);
+    cleanQuestionTemplate
+      .querySelector(".remove-q-btn")
+      .classList.remove("d-none");
 
-      const input = clonedfield.querySelector("input");
-      if (input) {
-        input.value = "";
-      }
+    function updateLayoutIndexes() {
+      const allQuestions = container.querySelectorAll(".q-field");
 
-      container.appendChild(orgfield);
+      allQuestions.forEach((questionCard, qIndex) => {
+        const structuralIndex = qIndex + 1;
+        questionCard.querySelector(".q-number-title").textContent =
+          `Question ${structuralIndex}`;
+
+        const deleteBtn = questionCard.querySelector(".remove-q-btn");
+        deleteBtn.classList.toggle("d-none", allQuestions.length === 1);
+
+        questionCard
+          .querySelectorAll(".choices-container .c-field input")
+          .forEach(
+            (input) => (input.name = `question_${structuralIndex}_choices`),
+          );
+      });
+    }
+    addBtn.addEventListener("click", () => {
+      const clonedField = cleanQuestionTemplate.cloneNode(true);
+      clonedField
+        .querySelectorAll("input")
+        .forEach((input) => (input.value = ""));
+
+      const choiceRows = clonedField.querySelectorAll(
+        ".choices-container .c-field",
+      );
+      for (let i = 1; i < choiceRows.length; i++) choiceRows[i].remove();
+
+      container.appendChild(clonedField);
+      updateLayoutIndexes();
     });
 
-    const addChoiceBtn = document.getElementById("add-choice-btn");
-    const choice_container = document.getElementById("choices-container");
-
-    addChoiceBtn.addEventListener("click", function () {
-      const chorgfield = choice_container.querySelector(".c-field");
-      cloned_cfield = chorgfield.cloneNode(true);
-
-      const cinput = cloned_cfield.querySelector("input");
-
-      if (cinput) {
-        cinput.value = "";
+    container.addEventListener("click", (e) => {
+      if (e.target.closest(".add-choice-btn")) {
+        const choiceContainer = e.target.closest(".choices-container");
+        const clonedChoice = choiceContainer
+          .querySelector(".c-field")
+          .cloneNode(true);
+        clonedChoice.querySelector("input").value = "";
+        choiceContainer.appendChild(clonedChoice);
+        updateLayoutIndexes();
       }
 
-      choice_container.appendChild(cloned_cfield);
+      if (e.target.closest(".remove-q-btn")) {
+        e.target.closest(".q-field").remove();
+        updateLayoutIndexes();
+      }
+
+      if (e.target.closest(".remove-c-btn")) {
+        const parentContainer = e.target.closest(".choices-container");
+        if (parentContainer.querySelectorAll(".c-field").length > 1) {
+          e.target.closest(".c-field").remove();
+        } else {
+          alert("A question requires at least one answer option choice.");
+        }
+      }
     });
   </script>
 </html>
